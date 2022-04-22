@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="23e0a8db-c816-4231-9fdf-9ac0eff17efb" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="0bdb0e4d-332a-45bd-ba4c-836cd10381cd" >
+		<db:generic-connection url="jdbc:postgresql://localhost:5432/postgres" driverClassName="org.postgresql.Driver" user="postgres" password="8088" />
+	</db:config>
+	<flow name="GetCustomers" doc:id="2e9e7ebd-de15-4476-8c3a-6665c7d47ec2" >
+		<http:listener doc:name="Listener" doc:id="bf76cb97-e045-469c-a3f5-307c2dc6ffcb" config-ref="HTTP_Listener_config" path="/customer" allowedMethods="get"/>
+		<db:select doc:name="Select" doc:id="1873f7ee-16fb-4ef2-9405-0ced6486e830" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from customers]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="cfaad4fc-2efd-4600-ada4-f6688fd52be8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="getcustomersbyid" doc:id="87d0d03f-ece3-4cdb-af12-dd3d552f1013" >
+		<http:listener doc:name="Listener" doc:id="9f999a2b-d1d7-48fa-80a5-a6b8853079a4" config-ref="HTTP_Listener_config" path="/customer/{cid}"/>
+		<db:select doc:name="Select" doc:id="bf28326e-190d-4d7d-ab77-334db202d3c0" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from customers where cid=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'ID': attributes.uriParams.cid}]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="35bb4dd9-85d2-4f06-9e48-923d50808990">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="deleteflow" doc:id="4117dfa7-3dfb-4d20-8334-5d2188290a91" >
+		<http:listener doc:name="Listener" doc:id="ca9e53f5-1c65-4af0-b08e-9bedb2175946" config-ref="HTTP_Listener_config" path="/customer/{cid}" allowedMethods="delete"/>
+		<db:delete doc:name="Delete" doc:id="771e291c-6016-4c9c-9401-af93add6dd1b" config-ref="Database_Config">
+			<db:sql ><![CDATA[delete from customers where cid=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'ID': attributes.uriParams.cid}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Transform Message" doc:id="f2db837c-6c4b-43b2-8e42-20837d2754c9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"deleted"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="postcustomers" doc:id="984c6c6b-3a89-4362-be50-6be9d8021fcc" >
+		<http:listener doc:name="Listener" doc:id="2a226936-1218-42b1-9d21-06438451c204" config-ref="HTTP_Listener_config" path="/customer" allowedMethods="post"/>
+		<db:insert doc:name="Insert" doc:id="9b6422b3-47d6-4c1e-aef9-90d47cccc6dc" config-ref="Database_Config">
+			<db:sql ><![CDATA[Insert INTO public.customers (cid,firstname,lastname,dob,address,postal,country,ctype) VALUES (:cid,:firstName,:lastName,:dob,:address,:postal,:country,:ctype)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+cid:payload.cid,
+firstName:payload.firstName,
+lastName:payload.lastName,
+dob:payload.dob,
+address:payload.address,
+postal:payload.postal,
+country:payload.country,
+ctype:payload.ctype
+}]]]></db:input-parameters>
+		</db:insert>
+		<logger level="INFO" doc:name="Logger" doc:id="99c3d227-0a0c-4ea9-a86b-7cb6bf20bf76" />
+		<ee:transform doc:name="Transform Message" doc:id="58705e40-7c24-4b3f-b830-56d12c3470cf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"created"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="updateflow" doc:id="33f99903-c0e6-4e8e-96ef-2ced9e842d6b" >
+		<http:listener doc:name="Listener" doc:id="e8071498-775b-47ad-9c76-628300044db4" config-ref="HTTP_Listener_config" path="/customer/{cid}" allowedMethods="put"/>
+		<db:update doc:name="Update" doc:id="f7eba7f6-9f4b-48ee-b68a-1fdbd473504d" config-ref="Database_Config">
+			<db:sql ><![CDATA[update customers SET firstname=:firstName,lastname=:lastName,address=:address,country=:country where cid=:ID]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{'ID': attributes.uriParams.cid,
+	'firstName':payload.firstName,
+	'lastName':payload.lastName,
+	'address':payload.address,
+	'country':payload.country
+}]]]></db:input-parameters>
+		</db:update>
+		<ee:transform doc:name="Transform Message" doc:id="a02836dd-a1ef-4b5d-9d58-6b8ec28a8602" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message:"updated"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
