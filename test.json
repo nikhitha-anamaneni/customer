@@ -1,0 +1,268 @@
+{
+  "root": ["block1"],
+  "block1": {
+    "name": "approve1",
+    "child": ["block2"],
+    "joinblock": []
+  },
+  "block2": {
+    "name": "terraform2",
+    "child": ["block3","block4"],
+    "joinblock": []
+  },
+  "block3": {
+    "name": "munittest",
+    "child": [],
+    "joinblock": ["block5"]
+  },
+  "block4": {
+    "name": "sonar",
+    "child": [],
+    "joinblock": ["block5"]
+  },
+  "block5": {
+    "name": "muledeploy1",
+    "child": ["block6"],
+    "joinblock": []
+  },
+  "block6": {
+    "name": "bdd",
+    "child": ["block7"],
+    "joinblock": []
+  },	
+  "block7": {
+    "name": "jmeterbattery1",
+    "child": ["block8"],
+    "joinblock": []
+  },
+  "block8": {
+    "name": "owaspzap",
+    "child": ["block9"],
+    "joinblock": []
+  },
+  "block9": {
+    "name": "muledeploy2",
+    "child": ["block10"],
+    "joinblock": []
+  },
+  "block10": {
+    "name": "terraformdestroy2",
+    "child": [],
+    "joinblock": []
+  },
+  "approve1": {
+    "description": "Approval for Infra Provisioning",
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "subject": "Approve Deploy",
+    "timeoutValue": 1,
+    "timeoutUnits": "MINUTES",
+    "body": "Approval for the deployment"
+  },
+  "muledeploy1": {
+    "description": "Deploy in SIT",
+    "executionStrategy":"automatic",
+    "mule-version": "4.4.0-20220919",
+    "appname": "employeecomplexpoc1",
+    "businessid": "ddbe5750-31fa-419a-b0b7-f71b61bf57b1",
+    "vCore": "MICRO",
+    "workers": 1,
+    "env": "SIT",
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "gitcredentialsID": "354d0c75-a6d9-4d01-8597-fe4a89224258",
+    "gitref": "https://anamaneni_nikhitha@bitbucket.org/nikhithaanam/employeecomplexproc.git",
+    "gitbranch":"master"
+  },
+  "muledeploy2": {
+    "description": "Deploy in UAT",
+    "executionStrategy":"skip",
+    "mule-version": "4.4.0-20220919",
+    "appname": "employeecomplexpoc2",
+    "businessid": "ddbe5750-31fa-419a-b0b7-f71b61bf57b1",
+    "vCore": "MICRO",
+    "workers": 1,
+    "env": "UAT",
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "gitcredentialsID": "354d0c75-a6d9-4d01-8597-fe4a89224258",
+    "gitref": "https://anamaneni_nikhitha@bitbucket.org/nikhithaanam/employeecomplexproc.git",
+    "gitbranch":"master"
+  },
+  "munittest": {
+    "description": "Code Coverage",
+    "executionStrategy":"skip",
+    "app_env": "DEV",
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "gitcredentialsID": "10772611-faee-4e05-b661-8759f7b3ecad",
+    "gitref": "https://anamaneni_nikhitha@bitbucket.org/nikhithaanam/employeecomplexproc.git",
+    "gitbranch": "master"
+  },
+ 
+  "jmeterbattery1": {
+    "description":"Performance Testing",
+    "executionStrategy":"automatic",
+    "jmxlist":["HTTP_POST.jmx"],
+    "graph":"jmetergraphs",
+    "jira":"jirablock3",
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "deploy":"muledeploy1",
+    "graphmetrics":["max","median","mean"],
+    "params":{
+ 	"vCore":["micro"],
+	"workers":["1"],
+        "TC":["10"],
+        "LC":["5","10"],
+	"API":"/api",
+        "HOST":"employeecomplexpoc1.uk-e1.cloudhub.io",
+        "PORT":"80",
+	"PAYLOAD": [{"filename":"sample.json",
+		    "mime-type": "application/json"
+      		   }]
+			
+     }
+  },
+  "jmetergraphs": {
+    "description": "jmeter graphs",
+    "executionStrategy":"automatic",
+    "metrics":["max", "median", "mean"],
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com"
+  },
+  "bdd": {
+    "description": "Functional Testing",
+    "executionStrategy":"automatic",
+    "threshold":90,
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "jira":"jirablock1"
+  },
+  "jirablock1": {
+    "description": "Attach the Reports to Jira",
+    "executionStrategy":"automatic",
+    "params": {
+      "issue": "MULJIRA-20",
+      "project": "MULJIRA",
+      "summary": "BDD Reports",
+      "description": "Attach the Allure report created after running Behavior-driven development(BDD) for the API."
+    }
+  },
+  "jirablock2": {
+    "description": "Attach the Reports to Jira",
+    "executionStrategy":"automatic",
+    "params": {
+      "issue": "MULJIRA-12",
+      "project": "MULJIRA",
+      "summary": "Security Testing Reports",
+      "description": "Attach the Security testing report created after running OWASPZAP for the API."
+    }
+  },
+  "jirablock3": {
+    "description": "Attach the Reports to Jira",
+    "executionStrategy":"automatic",
+    "params": {
+      "issue": "MULJIRA-10",
+      "project": "MULJIRA",
+      "summary": "Performance Testing Reports",
+      "description": "Attach the Performance testing report created after running Jmeter for the API."
+    }
+  },
+  "owaspzap": {
+    "description": "Security Testing",
+    "executionStrategy":"automatic",
+    "jira":"jirablock2",	  
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "memory": "Xmx512m",
+    "apiurl": "http://employeecomplexpoc1.uk-e1.cloudhub.io/api",
+    "zapversion": "2.12.0",
+    "saxonversion": "9.1.0.8"
+  },
+   "sonar": {
+    "description": "Static Code Analysis",
+    "executionStrategy":"automatic",
+    "gitcredentialsID": "10772611-faee-4e05-b661-8759f7b3ecad",
+    "gitref": "https://anamaneni_nikhitha@bitbucket.org/nikhithaanam/employeecomplexproc.git",
+    "gitbranch": "master",
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com",
+    "pythonFile": "main.py",
+    "params": {
+      "username": "admin",
+      "oldPassword": "admin",
+      "newPassword": "admin123",
+      "browser": "chrome"
+    },
+    "sonarPlugin": {
+      "mule": {
+	      "pluginSrc": "https://github.com/mulesoft-catalyst/mule-sonarqube-plugin",
+	      "pythonArgs": {
+                 "browser": "chrome"
+      	      }
+       }       
+    }
+  },
+  "terraform1": {
+    "description": "Initiate, Plan & Provision Build Infrastructure",
+    "executionStrategy":"automatic",
+    "workspace":"sonar",
+    "params": {
+      "region": "us-east-1",
+      "name": "ec2SonarQube",
+      "instance_type": "t3.medium",
+      "subnet": "subnet-00ac6361413f76997",
+      "keyname": "ec2mulesoft1",
+      "security_group": "sg-06940d9d1370dc991"
+    },
+    "setuptools": {
+      "java17": "17",
+      "git": "l",
+      "maven": "3.8.5",
+      "sonarQube": "10.0.0.68432"
+    },
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com"
+  },
+  "terraform2": {
+    "description": "Initiate, Plan & Provision Build Infrastructure",
+    "executionStrategy":"automatic",
+    "workspace":"oneClick",
+    "params": {
+      "region": "us-east-1",
+      "name": "ec2OneClick",
+      "instance_type": "t3.small",
+      "subnet": "subnet-00ac6361413f76997",
+      "keyname": "ec2mulesoft1",
+      "security_group": "sg-06940d9d1370dc991"
+    },
+    "setuptools": {
+      "java11": "11",
+      "git": "l",
+      "jmeter": "5.5",
+      "maven": "3.8.5",
+      "zap": "2.12.0",
+      "allure":"2.21.0"
+    },
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com"
+  },
+  "terraformdestroy1": {
+    "description": "Destroy Build Infrastructure",
+    "executionStrategy":"automatic",
+    "workspace":"sonar",
+    "params": {
+      "region": "us-east-1",
+      "name": "ec2SonarQube",
+      "instance_type": "t3.medium",
+      "subnet": "subnet-00ac6361413f76997",
+      "keyname": "ec2mulesoft1",
+      "security_group": "sg-06940d9d1370dc991"
+    },
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com"
+  },
+  "terraformdestroy2": {
+    "description": "Destroy Build Infrastructure",
+    "executionStrategy":"automatic",
+    "workspace":"oneClick",
+    "params": {
+      "region": "us-east-1",
+      "name": "ec2OneClick",
+      "instance_type": "t3.small",
+      "subnet": "subnet-00ac6361413f76997",
+      "keyname": "ec2mulesoft1",
+      "security_group": "sg-06940d9d1370dc991"
+    },
+    "emailId": "jenkins.test2023@gmail.com,shuchi.shubhangi@capgemini.com,anamaneni.nikhitha@capgemini.com"
+  }
+}
